@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
 <script src="script.js"></script> 
-<title>Password recovery</title>
+<title>recovery page</title>
 </head>
 <body>
         <div class="container">
         <div class="form-container">
-            <h2>Forgot password</h2>
+            <h2>enter the passcode</h2>
             <form id="recovery_form">
 
             <div class="input_element">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required />
+                <label for="passcode">we sent verification code to your mail</label>
+                <input type="text" id="passcode" name="passcode" placeholder="enter the code here" required />
             </div>
-            <button type="submit" onclick=send_mail()>Send</button>
+            <button type="submit" onclick=accepted_sent()> Recovery</button>
             <p class="sent_status" id="sent_mail"></p>
             </form>
 

@@ -56,18 +56,17 @@ body {
     background: #0056b3;
   }
   
-  .login_to_reg {
+  .login_to_reg, .login_to_forget {
     margin-top: 15px;
     text-align: center;
     color: #666;
-  }
-  
-  .login_to_reg a {
+}
+
+.login_to_reg a, .login_to_forget a {
     color: #007bff;
     text-decoration: none;
-  }
-  
-  .login_to_reg a:hover {
+}
+
+.login_to_reg a:hover, .login_to_forget a:hover {
     text-decoration: underline;
-  }
-  
+}

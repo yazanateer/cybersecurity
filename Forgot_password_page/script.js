@@ -4,4 +4,11 @@ function send_mail() {
         status_msg.innerText = "error, the mail doesn't exist";
     }
 
+    if(true) { //if the mail is exist in the database then goto the recover page
+        window.open("http://127.0.0.1:3000/Forgot_password_page/recovery.html");
+    }
+
 }
+
+
+window.open("http://127.0.0.1:3000/Forgot_password_page/recovery.html");

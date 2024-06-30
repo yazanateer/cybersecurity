@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<title>Enter New Customer</title>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Enter New Customer</h2>
+            <form id="new_customer_form" onsubmit="addCustomer(event)">
+
+                <div class="input_element">
+                    <label for="customer_name">Customer Name</label>
+                    <input type="text" id="customer_name" name="customer_name" required />
+                </div>
+
+                <div class="input_element">
+                    <label for="customer_email">Customer Email</label>
+                    <input type="email" id="customer_email" name="customer_email" required />
+                </div>
+
+                <div class="input_element">
+                    <label for="customer_phone">Customer Phone</label>
+                    <input type="text" id="customer_phone" name="customer_phone" required />
+                </div>
+
+                <button type="submit">Add Customer</button>
+            </form>
+            <p class="customer_added" id="customer_added"></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

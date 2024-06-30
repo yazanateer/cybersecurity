@@ -10,7 +10,7 @@
       <div class="container">
         <div class="form-container">
           <h2>Register</h2>
-          <form id="register_form">
+          <form id="register_form" onsubmit="registerUser(event)" >
 
             <div class="input_element">
               <label for="username">Username</label>
@@ -29,17 +29,19 @@
 
             <div class="input_element">
               <label for="Re-enter_password">Re-enter password</label>
-              <input type="password" id="password" name="password" required />
+              <input type="password" id="re-password" name="password" required />
             </div>
 
             <button type="submit"> Register</button>
             <p class="reg_to_login">Already have an account? <a href="../Login_page/index.html">Login</a></p>
 
           </form>
-
-
-
         </div>
+        <div id="userDisplay"></div>
+        <div id="welcome"></div>
+        <div id="password_valid"></div>
       </div>
+      
+      <script src="script.js"></script>
 </body>
 </html>

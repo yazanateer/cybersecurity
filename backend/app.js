@@ -105,12 +105,15 @@ app.post('/changePassword', async (req, res) => {
       const user = results[0];
 
       //check if the current password match the saved in the database 
-      //const is_match_pass = await bcrypt.compare(currentPassword, user.password);
+      
+      const is_match_pass = await bcrypt.compare(currentPassword, user.password);
       console.log(currentPassword);
+      console.log(newPassword);
       console.log(user.password);
-      // if (!is_match_pass) {
-      //   return res.status(400).json({ message: 'Current password is incorrect' });
-      // }
+
+      if (!is_match_pass) {
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
 
       //check if the new password match the configurations 
       if (!valid_password(newPassword)) {

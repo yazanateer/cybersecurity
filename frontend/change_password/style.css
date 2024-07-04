@@ -61,3 +61,22 @@ button:hover {
     text-align: center;
     color: green;
 }
+
+
+.username_form {
+    margin-bottom: 20px;
+}
+
+.username_form label {
+    display: block;
+    margin-bottom: 10px;
+    color: #888;
+}
+
+.username_form input {
+    margin-left: -10px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}

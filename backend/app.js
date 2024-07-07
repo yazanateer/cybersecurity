@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const database = require('./config/db'); // Ensure this path is correct
 const cors = require('cors');
 const config = require('./config/config');
+const nodemailer = require('nodemailer')
 
 const app = express();
 const port = 3001;
@@ -12,6 +13,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+let code_mail = 0 //to save the code that sent to the mail 
 
 
 app.post('/register', async (req, res) => {
@@ -145,18 +147,88 @@ app.post('/changePassword', async (req, res) => {
 }
 });
 
+app.post('/sendRecoveryCode',  async (req, res) => {
+
+  const { email } = req.body; 
+  const user_query = 'SELECT COUNT(*) AS count FROM users WHERE email = ?';
+  database.query(user_query, [email], async(err, result) => {
+
+    if(err) {
+      console.error('Error checking email: ', err);
+      return res.status(500).send('Server error');
+    }
+    const users_count = result[0].count;
+    console.log(users_count);
+    if(users_count > 0){
+      const recovery_code = generate_code();
+      code_mail = recovery_code;
+      try{
+        await send_recovery_mail(email, recovery_code);
+        res.status(200).json({message: 'recovery code sent to the email'});
+      } catch(error){
+        console.error('Error sending recovery mail: ', error);
+        res.status(500).send('Error sending recovyer mail');
+      }
+    } else {
+      res.status(404).json({message: 'Email does not exist in the database'});
+    }
+  });
+});
+
+app.post('/recoveryPage', (req, res) =>{
+const {code} = req.body;
+  console.log(code);
+  if(code_mail === code){
+    code_mail = -1;
+    res.status(200).json({message: 'the code match sucess'});
+  } else{
+    res.status(400).json({message: 'the code is incorrect'});
+  }
+});
+
+app.post('/resetPassword', async(req,res) => {
+  const {email, newPassword} = req.body;
+
+  try{
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    const updatedPasswordQuery = 'UPDATE users SET password = ? WHERE email = ?';
+
+    database.query(updatedPasswordQuery, [hashedPassword, email], (err, result) => {
+      if(err) {
+        return res.status(500).json({message: 'Error in server'});
+      }
+      res.status(200).json({message: 'password updated sucess'});
+    });
+  } catch(error) {
+    res.status(200).json({message: 'Error server'});
+  }
+});
+
+
+
+async function send_recovery_mail(email, code){
+  let transporter_object = nodemailer.createTransport({
+    service: 'gmail', 
+    auth: {
+      user: 'node70567@gmail.com',
+      pass: 'zssqsbuguvdewqvf'
+    }
+  });
+  let mail_target = {
+    from: 'node70567@gmail.com',
+    to: email,
+    subject: 'the recovery code to password recovery',
+    text: `to recover your password this is the code : ${code}`
+  };
+
+  return transporter_object.sendMail(mail_target);
+}
 
 
 
 
-
-
-
-
-
-
-
-
+//function to chekc if the passord is legal
 function valid_password(pass) {
   console.log('Password:', pass);
   console.log('Config:', config.password);
@@ -188,7 +260,7 @@ function valid_password(pass) {
   return true;
 }
 
-
+//to helper funciton to use in the valid passowrd
 function hasSpecialCharacter(password, specialCharacters) {
   for (let char of password) {
       if (specialCharacters.includes(char)) {
@@ -196,6 +268,11 @@ function hasSpecialCharacter(password, specialCharacters) {
       }
   }
   return false;
+}
+
+//function to generate a code to send to the mail
+function generate_code(){  
+  return Math.random().toString(36).substr(2,8); 
 }
 
 app.listen(port, () => {

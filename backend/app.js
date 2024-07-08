@@ -276,7 +276,7 @@ function hasSpecialCharacter(password, specialCharacters) {
 
 //function to generate a code to send to the mail
 function generate_code(){  
-  return crypto.createHash('sha1').update(Math.random().toString()).digest('hex').substr(0, 6);
+  return crypto.createHash('sha1').update(Math.random().toString()).digest('hex').substr(0, 6); //using the sha-1
 }
 
 app.listen(port, () => {

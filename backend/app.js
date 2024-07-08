@@ -4,7 +4,8 @@ const bcrypt = require('bcrypt');
 const database = require('./config/db'); // Ensure this path is correct
 const cors = require('cors');
 const config = require('./config/config');
-const nodemailer = require('nodemailer')
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const app = express();
 const port = 3001;
@@ -14,6 +15,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 let code_mail = 0 //to save the code that sent to the mail 
+
+
 
 
 app.post('/register', async (req, res) => {
@@ -44,8 +47,9 @@ app.post('/register', async (req, res) => {
 
      //save the password to the databse with salt and HMAC
      const salt_pass = await bcrypt.genSalt(10); //10 is the num of round in salt
-      const hashedPassword = await bcrypt.hash(password, salt_pass);
+     const hashedPassword = await bcrypt.hash(password, salt_pass);
 
+     
 
 
       // add the user into database
@@ -272,7 +276,7 @@ function hasSpecialCharacter(password, specialCharacters) {
 
 //function to generate a code to send to the mail
 function generate_code(){  
-  return Math.random().toString(36).substr(2,8); 
+  return crypto.createHash('sha1').update(Math.random().toString()).digest('hex').substr(0, 6);
 }
 
 app.listen(port, () => {

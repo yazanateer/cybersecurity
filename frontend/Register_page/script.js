@@ -26,6 +26,7 @@ try {
 
   if (response.ok) {
     alert('User registered successfully');
+    window.location.href = '../Login_page/index.html';
   } else if (response.status === 400) {
     const error_alert = await response.json();
     alert(error_alert.message);

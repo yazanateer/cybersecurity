@@ -1,11 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const database = require('./config/db'); // Ensure this path is correct
+const database = require('./config/db'); 
 const cors = require('cors');
 const config = require('./config/config');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+
+const secretKey = 'supersecretkey123';
 
 const app = express();
 const port = 3001;
@@ -14,7 +17,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-let code_mail = 0 //to save the code that sent to the mail 
+let code_mail = 0 
 
 
 
@@ -45,14 +48,12 @@ app.post('/register', async (req, res) => {
       }
 
 
-     //save the password to the databse with salt and HMAC
      const salt_pass = await bcrypt.genSalt(10); //10 is the num of round in salt
      const hashedPassword = await bcrypt.hash(password, salt_pass);
 
      
 
 
-      // add the user into database
       const insertUserSql = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
       database.query(insertUserSql, [username, email, hashedPassword], (err, result) => {
         if (err) {
@@ -154,6 +155,7 @@ app.post('/changePassword', async (req, res) => {
 app.post('/sendRecoveryCode',  async (req, res) => {
 
   const { email } = req.body; 
+  console.log("EMAIL IS",email)
   const user_query = 'SELECT COUNT(*) AS count FROM users WHERE email = ?';
   database.query(user_query, [email], async(err, result) => {
 
@@ -181,35 +183,75 @@ app.post('/sendRecoveryCode',  async (req, res) => {
 
 app.post('/recoveryPage', (req, res) =>{
 const {code} = req.body;
-  console.log(code);
+  console.log("Code Entered",code);
+  console.log("Code here",code_mail)
   if(code_mail === code){
     code_mail = -1;
+    console.log("MAtched")
     res.status(200).json({message: 'the code match sucess'});
   } else{
+    console.log("Not Matched")
     res.status(400).json({message: 'the code is incorrect'});
   }
 });
+app.post('/resetPassword', async (req, res) => {
+  const { email, newPassword } = req.body;
 
-app.post('/resetPassword', async(req,res) => {
-  const {email, newPassword} = req.body;
-
-  try{
+  try {
+   
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
-    const updatedPasswordQuery = 'UPDATE users SET password = ? WHERE email = ?';
 
+   
+    const updatedPasswordQuery = 'UPDATE users SET password = ? WHERE email = ?';
     database.query(updatedPasswordQuery, [hashedPassword, email], (err, result) => {
-      if(err) {
-        return res.status(500).json({message: 'Error in server'});
+      if (err) {
+        console.error('Error updating password:', err);
+        return res.status(500).json({ message: 'Server error' });
       }
-      res.status(200).json({message: 'password updated sucess'});
+      console.log(result)
+      res.status(200).json({ message: 'Password updated successfully' });
     });
-  } catch(error) {
-    res.status(200).json({message: 'Error server'});
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
 
+
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+
+    const findUserSql = 'SELECT * FROM users WHERE email = ?';
+    database.query(findUserSql, [email], async (err, results) => {
+      if (err) {
+        console.error('Error in getting the user: ', err);
+        return res.status(500).send('Server error');
+      }
+
+      if (results.length === 0) {
+        return res.status(400).json({ message: 'No such user found' });
+      }
+
+      const user = results[0];
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
+
+      const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+
+      res.status(200).json({ message: 'User logged in successfully', accessToken: token ,userId:user.id });
+    });
+  } catch (error) {
+    console.error('Error logging in user: ', error);
+    res.status(500).send('Server error');
+  }
+});
 
 async function send_recovery_mail(email, code){
   let transporter_object = nodemailer.createTransport({
@@ -228,6 +270,7 @@ async function send_recovery_mail(email, code){
 
   return transporter_object.sendMail(mail_target);
 }
+
 
 
 
@@ -279,6 +322,73 @@ function generate_code(){
   return crypto.createHash('sha1').update(Math.random().toString()).digest('hex').substr(0, 6); //using the sha-1
 }
 
+// Middleware to check authentication
+function checkAuth(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Authorization token is missing' });
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, secretKey);
+    req.userData = { userId: decodedToken.userId };
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+}
+
+app.post('/add_customer', checkAuth, async (req, res) => {
+  const { customer_name, customer_email, customer_phone } = req.body;
+  const userId = req.userData.userId;
+
+ 
+  const createCustomerTableSql = `
+    CREATE TABLE IF NOT EXISTS customers (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      customer_name VARCHAR(255) NOT NULL,
+      customer_email VARCHAR(255) NOT NULL,
+      customer_phone VARCHAR(20) NOT NULL,
+      user_id INT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+  `;
+
+  const addCustomerSql = `
+    INSERT INTO customers (customer_name, customer_email, customer_phone, user_id)
+    VALUES (?, ?, ?, ?)
+  `;
+  database.query(createCustomerTableSql, (err) => {
+    if (err) {
+      console.error('Error creating customers table:', err);
+      return res.status(500).send('Server error');
+    }
+
+    database.query(addCustomerSql, [customer_name, customer_email, customer_phone, userId], (err, results) => {
+      if (err) {
+        console.error('Error adding customer:', err);
+        return res.status(500).send('Server error');
+      }
+
+      res.status(201).json({ message: 'Customer added successfully', customerId: results.insertId });
+    });
+  });
+});
+app.get('/customers', checkAuth, async (req, res) => {
+  const userId = req.userData.userId;
+
+  const getCustomersSql = 'SELECT * FROM customers WHERE user_id = ?';
+
+  database.query(getCustomersSql, [userId], (err, results) => {
+    if (err) {
+      console.error('Error retrieving customers:', err);
+      return res.status(500).send('Server error');
+    }
+
+    res.status(200).json(results);
+  });
+});
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

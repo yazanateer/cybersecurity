@@ -1,37 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
-<title>Enter New Customer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Enter New Customer</title>
 </head>
 <body>
+    <header>
+        <nav class="navbar">
+            <div class="navbar-left">
+                <span class="navbar-brand">CyberSecurity Project</span>
+            </div>
+            <div class="navbar-right">
+                <a href="../Login_page/index.html" class="navbar-link"><i class="fa fa-user" style="font-size:36px"></i></a>
+            </div>
+        </nav>
+    </header>
+
     <div class="container">
-        <div class="form-container">
-            <h2>Enter New Customer</h2>
-            <form id="new_customer_form" onsubmit="addCustomer(event)">
+        <div class="grid-container">
+            <div class="form-container">
+                <h2>Enter New Customer</h2>
+                <form id="new_customer_form">
 
-                <div class="input_element">
-                    <label for="customer_name">Customer Name</label>
-                    <input type="text" id="customer_name" name="customer_name" required />
+                    <div class="input_element">
+                        <label for="customer_name">Customer Name</label>
+                        <input type="text" id="customer_name" name="customer_name" required />
+                    </div>
+
+                    <div class="input_element">
+                        <label for="customer_email">Customer Email</label>
+                        <input type="email" id="customer_email" name="customer_email" required />
+                    </div>
+
+                    <div class="input_element">
+                        <label for="customer_phone">Customer Phone</label>
+                        <input type="text" id="customer_phone" name="customer_phone" required />
+                    </div>
+
+                    <button type="submit">Add Customer</button>
+                </form>
+                <p class="customer_added" id="customer_added"></p>
+            </div>
+
+            <div class="table-container">
+                <h2>Customer List</h2>
+                <div class="table-scroll">
+                    <table id="customer_table">
+                        <thead>
+                            <tr>
+                                <th>Customer Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customer_list">
+                        
+                        
+                     
+                        </tbody>
+                    </table>
                 </div>
-
-                <div class="input_element">
-                    <label for="customer_email">Customer Email</label>
-                    <input type="email" id="customer_email" name="customer_email" required />
-                </div>
-
-                <div class="input_element">
-                    <label for="customer_phone">Customer Phone</label>
-                    <input type="text" id="customer_phone" name="customer_phone" required />
-                </div>
-
-                <button type="submit">Add Customer</button>
-            </form>
-            <p class="customer_added" id="customer_added"></p>
+            </div>
         </div>
     </div>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

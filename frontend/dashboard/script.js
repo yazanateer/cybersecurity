@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error fetching customers:', error.message);
       }
     };
-  
+
     newCustomerForm.addEventListener('submit', async (event) => {
       event.preventDefault();
   

@@ -1,0 +1,167 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+
+.navbar {
+    background-color: #2980b9;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar-right {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.navbar-link {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.navbar-link:hover {
+    color: #ecf0f1;
+}
+
+.container {
+    width: 100%;
+    min-height: 100vh;  
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;  
+}
+
+.form-container,
+.table-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 100%;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.input_element {
+    margin-bottom: 15px;
+}
+
+input[type="text"],
+input[type="email"],
+button {
+    width: calc(100% - 20px);  
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.customer_added {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.table-scroll {
+    overflow-x: auto;
+    overflow-y: auto;  
+    max-height: 400px;  
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead, tbody {
+    display: block;
+}
+
+thead {
+    background-color: #f2f2f2;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    width: 200px;  
+}
+
+th {
+    position: sticky;
+    top: 0;
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}

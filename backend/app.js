@@ -16,10 +16,9 @@ const port = 3001;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
+app.use(express.static('frontend'));
 
 let code_mail = 0 
-
-
 
 
 app.post('/register', async (req, res) => {
@@ -49,9 +48,9 @@ app.post('/register', async (req, res) => {
 
 
      const salt_pass = await bcrypt.genSalt(10); //10 is the num of round in salt
-     const hashedPassword = await bcrypt.hash(password, salt_pass);
+      const hashedPassword = await bcrypt.hash(password, salt_pass);
 
-     
+
 
 
       const insertUserSql = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
@@ -153,7 +152,6 @@ app.post('/changePassword', async (req, res) => {
 });
 
 app.post('/sendRecoveryCode',  async (req, res) => {
-
   const { email } = req.body; 
   console.log("EMAIL IS",email)
   const user_query = 'SELECT COUNT(*) AS count FROM users WHERE email = ?';
@@ -194,15 +192,16 @@ const {code} = req.body;
     res.status(400).json({message: 'the code is incorrect'});
   }
 });
+
 app.post('/resetPassword', async (req, res) => {
   const { email, newPassword } = req.body;
 
   try {
-   
+  
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-   
+  
     const updatedPasswordQuery = 'UPDATE users SET password = ? WHERE email = ?';
     database.query(updatedPasswordQuery, [hashedPassword, email], (err, result) => {
       if (err) {
@@ -271,10 +270,6 @@ async function send_recovery_mail(email, code){
   return transporter_object.sendMail(mail_target);
 }
 
-
-
-
-
 //function to chekc if the passord is legal
 function valid_password(pass) {
   console.log('Password:', pass);
@@ -339,11 +334,11 @@ function checkAuth(req, res, next) {
   }
 }
 
+
 app.post('/add_customer', checkAuth, async (req, res) => {
   const { customer_name, customer_email, customer_phone } = req.body;
   const userId = req.userData.userId;
 
- 
   const createCustomerTableSql = `
     CREATE TABLE IF NOT EXISTS customers (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -355,32 +350,39 @@ app.post('/add_customer', checkAuth, async (req, res) => {
     )
   `;
 
+
+
   const addCustomerSql = `
     INSERT INTO customers (customer_name, customer_email, customer_phone, user_id)
-    VALUES (?, ?, ?, ?)
+    VALUES ('${customer_name}', '${customer_email}', '${customer_phone}', '${userId}')
   `;
+
   database.query(createCustomerTableSql, (err) => {
     if (err) {
       console.error('Error creating customers table:', err);
       return res.status(500).send('Server error');
     }
 
-    database.query(addCustomerSql, [customer_name, customer_email, customer_phone, userId], (err, results) => {
+    database.query(addCustomerSql, (err, results) => {
       if (err) {
         console.error('Error adding customer:', err);
-        return res.status(500).send('Server error');
+        return res.status(500).send(`Server error: ${err.message}`);  // More detailed error message
       }
-
       res.status(201).json({ message: 'Customer added successfully', customerId: results.insertId });
     });
   });
 });
+
+
+ 
+
 app.get('/customers', checkAuth, async (req, res) => {
   const userId = req.userData.userId;
 
-  const getCustomersSql = 'SELECT * FROM customers WHERE user_id = ?';
+  const getCustomersSql = `SELECT * FROM customers WHERE user_id = '${userId}'`;
+  
 
-  database.query(getCustomersSql, [userId], (err, results) => {
+  database.query(getCustomersSql, (err, results) => {
     if (err) {
       console.error('Error retrieving customers:', err);
       return res.status(500).send('Server error');
@@ -389,6 +391,69 @@ app.get('/customers', checkAuth, async (req, res) => {
     res.status(200).json(results);
   });
 });
+
+app.get('/display_customer', async (req, res) => {
+  const { customer_name } = req.query;
+  console.log(customer_name);
+  
+  // Vulnerable SQL query
+  const query = `SELECT * FROM customers WHERE customer_name = '${customer_name}'`;
+
+  database.query(query, (err, results) => {
+    if (err) {
+      console.error('Error retrieving customer details:', err);
+      return res.status(500).send('Server error');
+    }
+
+    if (results.length === 0) {
+      return res.send('Customer not found');
+    }
+
+    const customer = results[0];
+    res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0; /* Optional: Background color for the entire page */
+        }
+
+        .container {
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 400px; /* Adjust as needed */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff; /* Background color for the container */
+        }
+    </style>
+    <title>Customer Details</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Customer Details</h2>
+        <div id="customer_details">
+            <p>Name: ${customer.customer_name}</p>
+            <p>Email: ${customer.customer_email}</p>
+            <p>Phone: ${customer.customer_phone}</p>
+        </div>
+        <a href="http://127.0.0.1:3000/backend/public/dashboard/index.html">Back to Customer List</a>
+    </div>
+</body>
+</html>
+    `);
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="script.js"></script> 
+<title>recovery page</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="navbar-left">
+                <span class="navbar-brand">Communication LTD</span>
+            </div>
+            <div class="navbar-right">
+                <div class="dropdown">
+                    <a href="javascript:void(0)" class="navbar-link"><i class="fa fa-user" style="font-size:36px"></i></a>
+                    <div class="dropdown-content">
+                        <a href="../Login_page/index.html">Login</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+        <div class="container">
+        <div class="form-container">
+            <h2>enter the passcode</h2>
+            <form id="verification_form">
+            <div class="input_element">
+                <label for="passcode">we sent verification code to your mail</label>
+                <input type="text" id="passcode" name="passcode" placeholder="enter the code here" required />
+            </div>
+            <button type="submit" > Recovery</button>
+            <p class="sent_status" id="sent_mail"></p>
+            </form>
+
+
+
+        </div>
+        </div>
+</body>
+</html>

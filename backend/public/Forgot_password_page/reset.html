@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<title>Password Reset</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="navbar-left">
+                <span class="navbar-brand">Communication LTD</span>
+            </div>
+            <div class="navbar-right">
+                <div class="dropdown">
+                    <a href="javascript:void(0)" class="navbar-link"><i class="fa fa-user" style="font-size:36px"></i></a>
+                    <div class="dropdown-content">
+                        <a href="../Login_page/index.html">Login</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Reset Password</h2>
+            <form id="reset_form">
+                <div class="input_element">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password" required />
+                </div>
+                <button type="submit">Reset Password</button>
+                <p class="reset_status" id="reset_status"></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

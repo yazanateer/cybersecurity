@@ -12,30 +12,33 @@
       <div class="navbar-left">
           <span class="navbar-brand">Communication LTD</span>
       </div>
-  </nav>
+    </nav>
   </header>
-      <div class="container">
-        <div class="form-container">
-          <h2>Login</h2>
-          <form id="login_form">
-            <div class="input_element">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" required />
-            </div>
-          
-            <div class="input_element">
-              <label for="password">Password</label>
-              <input type="password" id="password" name="password" required />
-            </div>
-
-            <button type="submit">Login</button>
-            <p class="login_to_reg">Don't have an account? <a href="../Register_page/index.html">Register</a></p>
-            <p class="login_to_forget">Forgot your password? <a href="../Forgot_password_page/index.html">click here</a></p>
-          </form>
+  <div class="container">
+    <div class="form-container">
+      <h2>Login</h2>
+      <form id="login_form">
+        <div class="input_element">
+          <label for="email">Email</label>
+          <input type="text" id="email" name="email" required />
         </div>
-      </div>
-
       
-      <script src="script.js"></script>
+        <div class="input_element">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+
+        <button type="submit">Login</button>
+        <p class="login_to_reg">Don't have an account? <a href="../Register_page/index.html">Register</a></p>
+        <p class="login_to_forget">Forgot your password? <a href="../Forgot_password_page/index.html">Click here</a></p>
+      </form>
+      <div id="retry_info" class="retry-info hidden">
+        <p id="retry_message">Please wait 30 seconds before retrying...</p>
+        <p id="retry_timer"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>

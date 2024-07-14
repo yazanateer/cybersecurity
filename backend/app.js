@@ -20,6 +20,49 @@ app.use(express.static('frontend'));
 
 let code_mail = 0 
 
+//RUn WHen YOi want to apply sqli injection 
+// app.post('/register', async (req, res) => {
+//   const { username, email, password, re_pass } = req.body;
+
+//   // Check if passwords match
+//   if (password != re_pass) {
+//     return res.status(400).json({ message: 'Passwords do not match!' });
+//   }
+
+
+
+//   try {
+//     // Vulnerable query: directly concatenate user input
+//     const list_users = `SELECT COUNT(*) AS count FROM users WHERE username = '${username}' OR email = '${email}'`;
+
+//     database.query(list_users, async (err, results) => {
+//       if (err) {
+//         console.error('Error in getting the list of users: ', err);
+//         return res.status(500).send('Server error');
+//       }
+
+//       const num_of_users = results[0].count;
+
+//       if (num_of_users > 0) {
+//         return res.status(400).send('This user already exists in the database');
+//       }
+
+//       const insertUserSql = `INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${password}')`;
+
+//       database.query(insertUserSql, (err, result) => {
+//         if (err) {
+//           console.error('Error insert user: ', err);
+//           return res.status(500).send('Server error');
+//         }
+//         res.status(200).send('User registered successfully');
+//       });
+//     });
+//   } catch (error) {
+//     console.error('Error registering user: ', error);
+//     res.status(500).send('Server error');
+//   }
+// });
+
 
 app.post('/register', async (req, res) => {
   const { username, email, password, re_pass } = req.body;
@@ -252,6 +295,38 @@ app.post('/login', async (req, res) => {
   }
 });
 
+//Vunerable Code
+
+// app.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     // Intentionally vulnerable query without parameterization
+//     const findUserSql = `SELECT * FROM users WHERE email = '${email}' OR password = '${password}'`;
+
+//     database.query(findUserSql, async (err, results) => {
+//       if (err) {
+//         console.error('Error in getting the user: ', err);
+//         return res.status(500).send('Server error');
+//       }
+
+//       if (results.length === 0) {
+//         return res.status(400).json({ message: 'Invalid credentials' });
+//       }
+
+//       const user = results[0];
+
+//       const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+
+//       res.status(200).json({ message: 'User logged in successfully', accessToken: token, userId: user.id });
+//     });
+//   } catch (error) {
+//     console.error('Error logging in user: ', error);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+
 async function send_recovery_mail(email, code){
   let transporter_object = nodemailer.createTransport({
     service: 'gmail', 
@@ -333,46 +408,33 @@ function checkAuth(req, res, next) {
     return res.status(401).json({ message: 'Invalid token' });
   }
 }
-
-
 app.post('/add_customer', checkAuth, async (req, res) => {
   const { customer_name, customer_email, customer_phone } = req.body;
   const userId = req.userData.userId;
 
-  const createCustomerTableSql = `
-    CREATE TABLE IF NOT EXISTS customers (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      customer_name VARCHAR(255) NOT NULL,
-      customer_email VARCHAR(255) NOT NULL,
-      customer_phone VARCHAR(20) NOT NULL,
-      user_id INT NOT NULL,
-      FOREIGN KEY (user_id) REFERENCES users(id)
-    )
-  `;
-
-
-
+  // WARNING: This code is vulnerable to SQL injection
   const addCustomerSql = `
     INSERT INTO customers (customer_name, customer_email, customer_phone, user_id)
     VALUES ('${customer_name}', '${customer_email}', '${customer_phone}', '${userId}')
   `;
 
-  database.query(createCustomerTableSql, (err) => {
+  database.query(addCustomerSql, (err, results) => {
     if (err) {
-      console.error('Error creating customers table:', err);
-      return res.status(500).send('Server error');
+      console.error('Error adding customer:', err);
+      return res.status(500).send(`Server error: ${err.message}`);
     }
+    res.status(201).json({ message: 'Customer added successfully', customerId: results.insertId });
+  });
 
-    database.query(addCustomerSql, (err, results) => {
-      if (err) {
-        console.error('Error adding customer:', err);
-        return res.status(500).send(`Server error: ${err.message}`);  // More detailed error message
-      }
-      res.status(201).json({ message: 'Customer added successfully', customerId: results.insertId });
-    });
+  
+  database.query(maliciousSql, (err, results) => {
+    if (err) {
+      console.error('Error with injection attempt:', err);
+     
+    }
+    console.log('Injection attempt results:', results);
   });
 });
-
 
  
 
@@ -387,7 +449,7 @@ app.get('/customers', checkAuth, async (req, res) => {
       console.error('Error retrieving customers:', err);
       return res.status(500).send('Server error');
     }
-
+    console.log("USER IS IS",userId , "Result are",results)
     res.status(200).json(results);
   });
 });

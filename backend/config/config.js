@@ -1,11 +1,15 @@
 module.exports = {
-    password: {
-        min_password_length: 10,
-        uperLetter: true,
-        lowerLetter: true,
-        numbers: true,
-        specialLetters: true,
-        special: '!@#$%^&*()_+><,.[]}{?',
-        num_try_login: 3
+    db: {
+      host: 'localhost',
+      user: 'root',
+      password: 'root',
+      database: 'mydb',
+     
+    },
+    password:{
+        min_password_length:8,
+        special: '!@#$%^&*()-_=+[]{}|;:,.<>?'
     }
-}
+
+  };
+  

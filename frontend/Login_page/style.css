@@ -94,3 +94,12 @@ button:hover {
 .login_to_reg a:hover, .login_to_forget a:hover {
   text-decoration: underline;
 }
+
+.hidden {
+  display: none;
+}
+
+.retry-info {
+  margin-top: 10px;
+  text-align: center;
+}

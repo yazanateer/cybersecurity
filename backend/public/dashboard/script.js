@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const fetchCustomers = async () => {
     try {
       const accessToken = localStorage.getItem('accessToken');
-      if (!accessToken) {
+      const userId = localStorage.getItem('user_id');
+
+      if  (!accessToken || !userId) {
         throw new Error('Access token not found in localStorage');
       }
       const response = await fetch('http://localhost:3001/customers', {

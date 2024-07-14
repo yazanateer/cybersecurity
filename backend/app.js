@@ -6,7 +6,7 @@ const cors = require('cors');
 const config = require('./config/config');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); //for the login with token to get access for specific time
 
 const secretKey = 'supersecretkey123';
 
@@ -53,7 +53,7 @@ app.post('/register', async (req, res) => {
 
 
 
-      const insertUserSql = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
+      const insertUserSql = `INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${hashedPassword}')`;
       database.query(insertUserSql, [username, email, hashedPassword], (err, result) => {
         if (err) {
           console.error('Error insert user: ', err);
@@ -220,16 +220,20 @@ app.post('/resetPassword', async (req, res) => {
 
 
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  // const { email, password } = req.body;
+  const { username, password } = req.body;
 
   try {
 
-    const findUserSql = 'SELECT * FROM users WHERE email = ?';
-    database.query(findUserSql, [email], async (err, results) => {
+    // const findUserSql = 'SELECT * FROM users WHERE email = ?';
+    const findUserSql = ` SELECT * FROM users WHERE username='${username}'`;
+    database.query(findUserSql, [username], async (err, results) => {
       if (err) {
         console.error('Error in getting the user: ', err);
         return res.status(500).send('Server error');
       }
+      console.log(findUserSql);
+      console.log('Query results:', results);
 
       if (results.length === 0) {
         return res.status(400).json({ message: 'No such user found' });
@@ -239,7 +243,7 @@ app.post('/login', async (req, res) => {
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        return res.status(400).json({ message: 'Invalid credentials' });
+        return res.status(400).json({ message: 'Invalid credentials' , results: results });
       }
 
       const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
@@ -378,7 +382,6 @@ app.post('/add_customer', checkAuth, async (req, res) => {
 
 app.get('/customers', checkAuth, async (req, res) => {
   const userId = req.userData.userId;
-
   const getCustomersSql = `SELECT * FROM customers WHERE user_id = '${userId}'`;
   
 
@@ -394,11 +397,11 @@ app.get('/customers', checkAuth, async (req, res) => {
 
 app.get('/display_customer', async (req, res) => {
   const { customer_name } = req.query;
-  console.log(customer_name);
   
   // Vulnerable SQL query
   const query = `SELECT * FROM customers WHERE customer_name = '${customer_name}'`;
-
+  console.log(query.log);
+  
   database.query(query, (err, results) => {
     if (err) {
       console.error('Error retrieving customer details:', err);
